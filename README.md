@@ -1,34 +1,34 @@
 # tampermonkey-chatgpt-fold
 
-Userscript para Tampermonkey que permite **plegar y desplegar mensajes largos del usuario** en ChatGPT (chatgpt.com), añadiendo un botón “Mostrar más / Mostrar menos”.
+A Tampermonkey userscript that allows you to **fold and unfold long user messages** in ChatGPT (chatgpt.com), adding a "Show more / Show less" button.
 
-## Instalación
+## Installation
 
-1. Instala la extensión **Tampermonkey**:
+1. Install the **Tampermonkey** extension:
    - Chrome/Chromium: https://www.tampermonkey.net/
    - Firefox: https://www.tampermonkey.net/
 
-2. Crea un script nuevo en Tampermonkey.
-3. Pega el contenido de `chatgpt-fold-long-user-messages.user.js`.
-4. Guarda el script.
-5. Abre https://chatgpt.com/ y prueba con un mensaje largo.
+2. Create a new script in Tampermonkey.
+3. Paste the contents of `chatgpt-fold-long-user-messages.user.js`.
+4. Save the script.
+5. Open https://chatgpt.com/ and test it with a long message.
 
-## Cómo funciona
+## How it works
 
-- Detecta los mensajes del usuario (`data-message-author-role="user"`).
-- Si el contenido supera una cierta altura, lo **pliega** y añade un botón para desplegarlo o volver a plegarlo.
+- Detects user messages (`data-message-author-role="user"`).
+- If the content exceeds a certain height, it **folds** it and adds a button to unfold or fold it again.
 
-## Ajustes rápidos
+## Quick settings
 
-En el script puedes modificar:
-- `MAX_HEIGHT` (en px): altura a partir de la cual se pliega.
-- `max-height` en el CSS (`.msg-collapsed`): altura visible cuando está plegado.
+In the script you can modify:
+- `MAX_HEIGHT` (in px): the height above which messages are folded.
+- `max-height` in the CSS (`.msg-collapsed`): the visible height when folded.
 
-## Compatibilidad
+## Compatibility
 
-- Diseñado para: `https://chatgpt.com/*`
-- Si utilizas otro dominio (por ejemplo, el anterior), añade otra regla `@match`.
+- Designed for: `https://chatgpt.com/*`
+- If you use a different domain (e.g., the old one), add another `@match` rule.
 
-## Licencia
+## License
 
 MIT
