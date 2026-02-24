@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         ChatGPT - Plegar mensajes largos del usuario
+// @name         ChatGPT - Fold long user messages
 // @namespace    http://tampermonkey.net/
 // @version      1.0
-// @description  Replica la función de plegar mensajes largos del usuario en ChatGPT.
+// @description  Replicates the fold long user messages feature in ChatGPT.
 // @author       urob0x
 // @match        https://chatgpt.com/*
 // @grant        GM_addStyle
@@ -11,13 +11,13 @@
 (function () {
     'use strict';
 
-    // Inyectamos el CSS necesario
+    // Inject necessary CSS
     GM_addStyle(`
         .msg-collapsed {
-            max-height: 120px !important; /* Altura del mensaje plegado */
+            max-height: 120px !important; /* Height of the collapsed message */
             overflow: hidden !important;
 
-            /* Difuminado inferior que funciona en tema claro y oscuro */
+            /* Bottom fade effect that works in both light and dark themes */
             -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
 
@@ -43,83 +43,83 @@
         }
     `);
 
-    // Altura (en píxeles) a partir de la cual el mensaje se considera "largo" y se pliega
+    // Height (in pixels) above which a message is considered "long" and gets folded
     const MAX_HEIGHT = 150;
 
-    function procesarMensajes() {
-        // Seleccionamos los mensajes del usuario que aún no hayamos procesado
-        const mensajesUsuario = document.querySelectorAll(
+    function processMessages() {
+        // Select user messages that haven't been processed yet
+        const userMessages = document.querySelectorAll(
             '[data-message-author-role="user"]:not(.folded-processed)'
         );
 
-        mensajesUsuario.forEach((contenedorMensaje) => {
-            contenedorMensaje.classList.add('folded-processed');
+        userMessages.forEach((messageContainer) => {
+            messageContainer.classList.add('folded-processed');
 
-            // Buscamos el elemento que contiene el texto (suele llevar esta clase en ChatGPT)
-            const nodoContenido =
-                contenedorMensaje.querySelector('.whitespace-pre-wrap') || contenedorMensaje;
+            // Find the element containing the text (usually has this class in ChatGPT)
+            const contentNode =
+                messageContainer.querySelector('.whitespace-pre-wrap') || messageContainer;
 
-            // Damos tiempo al navegador a renderizar para medir la altura correctamente
+            // Give the browser time to render to measure height correctly
             requestAnimationFrame(() => {
-                if (nodoContenido.scrollHeight > MAX_HEIGHT) {
-                    nodoContenido.classList.add('msg-collapsed');
+                if (contentNode.scrollHeight > MAX_HEIGHT) {
+                    contentNode.classList.add('msg-collapsed');
 
-                    // Creamos el botón
-                    const boton = document.createElement('button');
-                    boton.className = 'toggle-fold-btn';
-                    boton.innerText = '▼ Mostrar más';
+                    // Create the button
+                    const button = document.createElement('button');
+                    button.className = 'toggle-fold-btn';
+                    button.innerText = '▼ Show more';
 
-                    // Lógica para expandir/plegar
-                    boton.addEventListener('click', () => {
-                        const estaPlegado = nodoContenido.classList.contains('msg-collapsed');
+                    // Logic to expand/fold
+                    button.addEventListener('click', () => {
+                        const isFolded = contentNode.classList.contains('msg-collapsed');
 
-                        if (estaPlegado) {
-                            nodoContenido.classList.remove('msg-collapsed');
+                        if (isFolded) {
+                            contentNode.classList.remove('msg-collapsed');
 
-                            // Quitamos el difuminado al expandir
-                            nodoContenido.style.webkitMaskImage = 'none';
-                            nodoContenido.style.maskImage = 'none';
+                            // Remove the fade effect when expanding
+                            contentNode.style.webkitMaskImage = 'none';
+                            contentNode.style.maskImage = 'none';
 
-                            boton.innerText = '▲ Mostrar menos';
+                            button.innerText = '▲ Show less';
                         } else {
-                            nodoContenido.classList.add('msg-collapsed');
+                            contentNode.classList.add('msg-collapsed');
 
-                            // Restauramos el difuminado al plegar
-                            nodoContenido.style.webkitMaskImage = '';
-                            nodoContenido.style.maskImage = '';
+                            // Restore the fade effect when folding
+                            contentNode.style.webkitMaskImage = '';
+                            contentNode.style.maskImage = '';
 
-                            boton.innerText = '▼ Mostrar más';
+                            button.innerText = '▼ Show more';
                         }
                     });
 
-                    // Insertamos el botón al final del contenedor del mensaje
-                    contenedorMensaje.appendChild(boton);
+                    // Insert the button at the end of the message container
+                    messageContainer.appendChild(button);
                 }
             });
         });
     }
 
-    // Observador para detectar cuando ChatGPT carga mensajes nuevos
-    const observador = new MutationObserver((mutations) => {
-        let deberiaProcesar = false;
+    // Observer to detect when ChatGPT loads new messages
+    const observer = new MutationObserver((mutations) => {
+        let shouldProcess = false;
 
         for (const mutation of mutations) {
             if (mutation.addedNodes.length > 0) {
-                deberiaProcesar = true;
+                shouldProcess = true;
                 break;
             }
         }
 
-        if (deberiaProcesar) {
-            // Pequeño retardo para no saturar el rendimiento mientras se escribe
+        if (shouldProcess) {
+            // Small delay to avoid performance issues while typing
             clearTimeout(window.foldDebounce);
-            window.foldDebounce = setTimeout(procesarMensajes, 300);
+            window.foldDebounce = setTimeout(processMessages, 300);
         }
     });
 
-    // Iniciar la observación del chat
-    observador.observe(document.body, { childList: true, subtree: true });
+    // Start observing the chat
+    observer.observe(document.body, { childList: true, subtree: true });
 
-    // Procesar los mensajes ya existentes al cargar la página por primera vez
-    setTimeout(procesarMensajes, 1000);
+    // Process existing messages when the page first loads
+    setTimeout(processMessages, 1000);
 })();
